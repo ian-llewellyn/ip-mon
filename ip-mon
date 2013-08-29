@@ -1,0 +1,58 @@
+#!/bin/bash
+num_cols=3
+
+file=${1:-~/.ip-mon}
+
+screen_cols=$(tput cols)
+screen_rows=$(tput lines)
+
+move_next_pos() {
+	screen_cols=$(tput cols)
+	screen_rows=$(tput lines)
+
+	if [ -z $pos_rows -o -z $pos_cols ] ; then
+		pos_rows=0
+		pos_cols=0
+	fi
+	pos_rows=$(($pos_rows + 1))
+	if [ $pos_rows -eq $screen_rows ] ; then
+		pos_rows=0
+		pos_cols=$(( ( $pos_cols + $(( $screen_cols / $num_cols )) ) % $screen_cols ))
+	fi
+	tput cup $pos_rows $pos_cols
+}
+
+clear
+tput bold
+while true
+	tput cup 0 0	# Reset cursor to top-left
+	do cat $file | while read host description ; do
+		if [ -z "$host" ] ; then
+			continue
+		elif [ -z "$description" ] ; then
+			description=$host
+		fi
+
+		if [[ "$host" =~ ^\# ]] ; then
+			tput ech $(( $screen_cols / $num_cols ))
+			tput setaf 27
+			if [ "$host" == "$description" ] ; then
+				echo -n ${host#\#}
+			else
+				echo -n ${host#\#} $description
+			fi
+		elif ping -W 1 -c 1 $host &> /dev/null ; then
+			tput ech $(( $screen_cols / $num_cols ))
+			tput setaf 2
+			echo -n $description
+		else
+			tput ech $(( $screen_cols / $num_cols ))
+			tput setab 1
+			echo -n "!$description! !$host!"
+		fi
+		tput setaf 7
+		tput setab 232
+		move_next_pos
+	done
+	sleep 1
+done

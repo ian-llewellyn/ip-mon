@@ -1,0 +1,17 @@
+# Apache servers
+www1.example.com Nemo
+www2.example.com Sebastian
+www3.example.com Bob
+www4.example.com Claus
+# Cluster IP
+www.example.com Apache Cluster IP
+
+# MySQL Servers
+192.168.0.101 Optional Descriptions
+192.168.0.102 ...
+192.168.0.103
+192.168.0.104
+# Cluster Server
+192.168.0.100 MySQL Cluster IP
+
+# ...
