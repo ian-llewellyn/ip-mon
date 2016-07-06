@@ -2,12 +2,12 @@
 
 # Number of columns to display results in
 NUM_COLS=3
-COMM_FG_COLOUR=27
+COMM_FG_COLOUR=31 #27
 COMM_BG_COLOUR=
-OK_FG_COLOUR=2
-OK_BG_COLOUR=
-FAIL_FG_COLOUR=
-FAIL_BG_COLOUR=1
+OK_FG_COLOUR=149 #2
+OK_BG_COLOUR=22
+FAIL_FG_COLOUR=203
+FAIL_BG_COLOUR=52 #1
 
 # File listing addresses to be scanned - ~/.ip-mon by default
 file=${1:-~/.ip-mon}
@@ -38,6 +38,9 @@ move_next_pos() {
 	tput cup $pos_rows $pos_cols
 }
 
+# Stop colours bleeding out after the script exits
+trap "tput sgr0" EXIT
+
 # Clear the screen at the outset
 clear
 
@@ -63,11 +66,11 @@ while true
 
 		if [[ "$host" =~ ^\# ]] ; then
 			# Output the comment entry in the file
-			# Clear the text at this cursor location
-			tput ech $(( $screen_cols / $NUM_COLS ))
 			# Set the colour to blue
 			[ ! -z $COMM_FG_COLOUR ] && tput setaf $COMM_FG_COLOUR
 			[ ! -z $COMM_BG_COLOUR ] && tput setab $COMM_BG_COLOUR
+			# Clear text and apply colour to the field
+			tput ech $(( $screen_cols / $NUM_COLS ))
 			if [ "$host" == "$description" ] ; then
 				# Only one word was provided as a comment
 				echo -n ${host#\#}
@@ -77,20 +80,20 @@ while true
 			fi
 		elif ping -W 1 -c 1 $host &> /dev/null ; then
 			# Host was successfully pinged
-			# Clear the text at this cursor location
-			tput ech $(( $screen_cols / $NUM_COLS ))
 			# Set the colour to green
 			[ ! -z $OK_FG_COLOUR ] && tput setaf $OK_FG_COLOUR
 			[ ! -z $OK_BG_COLOUR ] && tput setab $OK_BG_COLOUR
+			# Clear text and apply colour to the field
+			tput ech $(( $screen_cols / $NUM_COLS ))
 			# Output the descriptive name for the host
 			echo -n $description
 		else
 			# Host could not be reached
-			# Clear the text at this cursor location
-			tput ech $(( $screen_cols / $NUM_COLS ))
 			# Set background colour to red
 			[ ! -z $FAIL_FG_COLOUR ] && tput setaf $FAIL_FG_COLOUR
 			[ ! -z $FAIL_BG_COLOUR ] && tput setab $FAIL_BG_COLOUR
+			# Clear text and apply colour to the field
+			tput ech $(( $screen_cols / $NUM_COLS ))
 			# Output the descriptive name and IP / hostname
 			# '!' marks included to indicate a problem in
 			# cases where colours are not available
