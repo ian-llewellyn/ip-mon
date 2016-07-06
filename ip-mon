@@ -17,13 +17,13 @@
 # Number of columns to display results in
 NUM_COLS=${NUM_COLS:-3}
 
-# Colours
-COMM_FG_COLOUR=${COMM_FG_COLOUR:-31}
-COMM_BG_COLOUR=${COMM_BG_COLOUR:-}
-OK_FG_COLOUR=${OK_FG_COLOUR:-149}
-OK_BG_COLOUR=${OK_BG_COLOUR:-22}
-FAIL_FG_COLOUR=${FAIL_FG_COLOUR:-203}
-FAIL_BG_COLOUR=${FAIL_BG_COLOUR:-52}
+# Default Colours
+[ ! -v COMM_FG_COLOUR ] && COMM_FG_COLOUR=27
+[ ! -v COMM_BG_COLOUR ] && COMM_BG_COLOUR=
+[ ! -v OK_FG_COLOUR ] && OK_FG_COLOUR=149
+[ ! -v OK_BG_COLOUR ] && OK_BG_COLOUR=22
+[ ! -v FAIL_FG_COLOUR ] && FAIL_FG_COLOUR=203
+[ ! -v FAIL_BG_COLOUR ] && FAIL_BG_COLOUR=52
 
 # File containing addresses to be scanned - ~/.ip-mon by default
 SCAN_FILE=${1:-${SCAN_FILE:-~/.ip-mon}}
