@@ -1,0 +1,13 @@
+# Number of columns to display results in
+NUM_COLS=3
+
+# ip-mon Colours
+COMM_FG_COLOUR=31 #27
+COMM_BG_COLOUR=
+OK_FG_COLOUR=149 #2
+OK_BG_COLOUR=22
+FAIL_FG_COLOUR=203
+FAIL_BG_COLOUR=52 #1
+
+# File listing addresses to be scanned - ~/.ip-mon by default
+SCAN_FILE=

@@ -1,16 +1,32 @@
 #!/bin/bash
+# Usage:
+#   ip-mon [scan_file]
+#
+# scan_file is a file listing IP addresses / hostnames, optionally
+# followed by a descriptive name for the host. The file may also
+# include lines beginning with '#' to act as group headings / comments.
+#
+# ip-mon attempts to read configuration from ~/.ip-monrc if it exists.
+# If that fails, an attempt is made to read .ip-monrc from the same
+# directory as the script. Built-in defaults are used if neither of the above succeed.
+
+# Load configuration or defaults
+[ -r "$(dirname "$(readlink "$0")")/.ip-monrc" ] && source "$(dirname "$(readlink "$0")")/.ip-monrc"
+[ -r ~/.ip-monrc ] && source ~/.ip-monrc
 
 # Number of columns to display results in
-NUM_COLS=3
-COMM_FG_COLOUR=31 #27
-COMM_BG_COLOUR=
-OK_FG_COLOUR=149 #2
-OK_BG_COLOUR=22
-FAIL_FG_COLOUR=203
-FAIL_BG_COLOUR=52 #1
+NUM_COLS=${NUM_COLS:-3}
 
-# File listing addresses to be scanned - ~/.ip-mon by default
-file=${1:-~/.ip-mon}
+# Colours
+COMM_FG_COLOUR=${COMM_FG_COLOUR:-31}
+COMM_BG_COLOUR=${COMM_BG_COLOUR:-}
+OK_FG_COLOUR=${OK_FG_COLOUR:-149}
+OK_BG_COLOUR=${OK_BG_COLOUR:-22}
+FAIL_FG_COLOUR=${FAIL_FG_COLOUR:-203}
+FAIL_BG_COLOUR=${FAIL_BG_COLOUR:-52}
+
+# File containing addresses to be scanned - ~/.ip-mon by default
+SCAN_FILE=${1:-${SCAN_FILE:-~/.ip-mon}}
 
 # Determine the dimensions of the terminal
 screen_cols=$(tput cols)
@@ -50,7 +66,7 @@ while true
 	tput cup 0 0
 
 	# Loop through each entry in the file
-	do cat $file | while read host description ; do
+	do cat $SCAN_FILE | while read host description ; do
 		# Reset and then embolden the text
 		tput sgr0
 		tput bold
