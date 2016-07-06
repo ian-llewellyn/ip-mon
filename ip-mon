@@ -1,58 +1,106 @@
 #!/bin/bash
-num_cols=3
 
+# Number of columns to display results in
+NUM_COLS=3
+COMM_FG_COLOUR=27
+COMM_BG_COLOUR=
+OK_FG_COLOUR=2
+OK_BG_COLOUR=
+FAIL_FG_COLOUR=
+FAIL_BG_COLOUR=1
+
+# File listing addresses to be scanned - ~/.ip-mon by default
 file=${1:-~/.ip-mon}
 
+# Determine the dimensions of the terminal
 screen_cols=$(tput cols)
 screen_rows=$(tput lines)
 
+# Position the cursor at the position for the next item
 move_next_pos() {
-	screen_cols=$(tput cols)
-	screen_rows=$(tput lines)
-
+	# The first time this function is called, initialise the variables
 	if [ -z $pos_rows -o -z $pos_cols ] ; then
 		pos_rows=0
 		pos_cols=0
-	fi
+	fi # then...
+
+	# Always move to the next row
 	pos_rows=$(($pos_rows + 1))
 	if [ $pos_rows -eq $screen_rows ] ; then
+		# Bottom of the terminal has been reached
+		# Next position should be at the top of the terminal
 		pos_rows=0
-		pos_cols=$(( ( $pos_cols + $(( $screen_cols / $num_cols )) ) % $screen_cols ))
+		# Next colum is ( current position + column width ) |modulus| screen width
+		pos_cols=$(( ( $pos_cols + $(( $screen_cols / $NUM_COLS )) ) % $screen_cols ))
 	fi
+
+        # Move to the calculated position
 	tput cup $pos_rows $pos_cols
 }
 
+# Clear the screen at the outset
 clear
-tput bold
+
+# Enter program proper
 while true
-	tput cup 0 0	# Reset cursor to top-left
+	# Reset cursor to the home position at the beginning of each full refresh
+	tput cup 0 0
+
+	# Loop through each entry in the file
 	do cat $file | while read host description ; do
+		# Reset and then embolden the text
+		tput sgr0
+		tput bold
+
 		if [ -z "$host" ] ; then
+			# Skip blank lines
 			continue
 		elif [ -z "$description" ] ; then
+			# If a separate name is not provided for the host, set
+			# the description to be displayed to the hostname / IP
 			description=$host
 		fi
 
 		if [[ "$host" =~ ^\# ]] ; then
-			tput ech $(( $screen_cols / $num_cols ))
-			tput setaf 27
+			# Output the comment entry in the file
+			# Clear the text at this cursor location
+			tput ech $(( $screen_cols / $NUM_COLS ))
+			# Set the colour to blue
+			[ ! -z $COMM_FG_COLOUR ] && tput setaf $COMM_FG_COLOUR
+			[ ! -z $COMM_BG_COLOUR ] && tput setab $COMM_BG_COLOUR
 			if [ "$host" == "$description" ] ; then
+				# Only one word was provided as a comment
 				echo -n ${host#\#}
 			else
+				# More than one word was provided as a comment
 				echo -n ${host#\#} $description
 			fi
 		elif ping -W 1 -c 1 $host &> /dev/null ; then
-			tput ech $(( $screen_cols / $num_cols ))
-			tput setaf 2
+			# Host was successfully pinged
+			# Clear the text at this cursor location
+			tput ech $(( $screen_cols / $NUM_COLS ))
+			# Set the colour to green
+			[ ! -z $OK_FG_COLOUR ] && tput setaf $OK_FG_COLOUR
+			[ ! -z $OK_BG_COLOUR ] && tput setab $OK_BG_COLOUR
+			# Output the descriptive name for the host
 			echo -n $description
 		else
-			tput ech $(( $screen_cols / $num_cols ))
-			tput setab 1
+			# Host could not be reached
+			# Clear the text at this cursor location
+			tput ech $(( $screen_cols / $NUM_COLS ))
+			# Set background colour to red
+			[ ! -z $FAIL_FG_COLOUR ] && tput setaf $FAIL_FG_COLOUR
+			[ ! -z $FAIL_BG_COLOUR ] && tput setab $FAIL_BG_COLOUR
+			# Output the descriptive name and IP / hostname
+			# '!' marks included to indicate a problem in
+			# cases where colours are not available
 			echo -n "!$description! !$host!"
 		fi
-		tput setaf 7
-		tput setab 232
+
+		# Prepare for the next item
 		move_next_pos
 	done
+
+	# Delay between successive scans
 	sleep 1
 done
