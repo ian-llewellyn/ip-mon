@@ -120,6 +120,7 @@ while true
 		move_next_pos
 	done
 
-	# Delay between successive scans
-	sleep 1
+	# Delay between successive scans and repaint the entire window
+	# if any key is pressed during the loop
+	read -n 1 -s -t 1 && tput reset && read -s -t 0.1
 done
