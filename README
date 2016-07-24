@@ -1,9 +1,0 @@
-ip-mon
-======
-Author: Ian Llewellyn
-
-IP-Mon is a very simple and quite useful visual monitor of servers. It reads a
-configuration file called .ip-mon located in your home directory for the list
-of servers and any comments/groupings. The program outputs groups/comments in
-blue, alive servers in green and failed servers in red making it immediately
-apparent when there is a problem.
